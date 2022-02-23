@@ -4,23 +4,23 @@ const fs = require('fs').promises;
 
 const host = 'localhost';
 const port = 8000;
+let indexFile;
 
-const requestListener = function (req, res) {
-s.readFile(__dirname + "/index.html")//fs.readFile() для загрузки файла,__dirname путь,/index.html, для загрузки данного файла
-	.then(contents => {//then() возвращает данные при успещном выполнении ,contents содержит эти самые данные
-		res.setHeader("Content-Type", "text/html");
-		res.writeHead(200);
-		res.end(contents);// отправляем на клиент данные
-	}
-)
-.catch(err => {// при ошибке 
-	res.writeHead(500);
-	res.end(err);
-	return;
+const requestListener = function (req, res) {res.setHeader("Content-Type", "text/html");
+	res.writeHead(200);
+	res.end(indexFile);//не загружает файл,а выводит его содержимое переменной
 }
        };
 
 const server = http.createServer(requestListener);
-server.listen(port, host, () => {
-	console.log(`Server is running on http://${host}:${port}`);
-});
+fs.readFile(__dirname + "/index.html")
+	.then(contents => {
+	  indexFile = contents;//при успешном запуске , данные запишутся в переменную индексфайл
+	  server.listen(port, host, () => {
+	    console.log(`Server is running on http://${host}:${port}`);
+	  });
+	})
+	.catch(err => {
+	  console.error(`Could not read index.html file: ${err}`);//записываем ошибку и выводим в консоль
+	  process.exit(1);//без запуска сервера
+	});
